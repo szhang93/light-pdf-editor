@@ -4,13 +4,14 @@
 #http://zetcode.com/gui/pyqt5/widgets2/
 
 import sys
+import atexit
 import os
 import PyPDF2
 from pdf2image import convert_from_path, convert_from_bytes
-from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QWidget, QAction, QTabWidget,QVBoxLayout, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QWidget, QAction, QTabWidget,QVBoxLayout, QMessageBox, QGridLayout
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtWidgets import QFileDialog, QLabel
+from PyQt5.QtWidgets import QFileDialog, QLabel, QScrollArea
 
 class App(QMainWindow):
 
@@ -38,9 +39,13 @@ class App(QMainWindow):
         images = convert_from_path(myPDF[0])
 
         pg = 0
+        imgList=[]
         for image in images:
-            image.save(tempPath+baseName+str(pg),"JPEG")
+            image.save(tempPath+baseName+str(pg)+"jpg","JPEG")
+            imgList.append(tempPath+baseName+str(pg)+"jpg")
             pg+=1
+
+        self.pdfDisplay.addPdfTab(imgList)
         #self.displayImg(images)
 
     def displayImg(self,images):
@@ -61,20 +66,24 @@ class App(QMainWindow):
 
         fileMenu = mainMenu.addMenu('File')
         openFile = fileMenu.addAction("Open")
-        openFile.triggered.connect(self.openFile)
-
         editMenu = mainMenu.addMenu('Edit')
         viewMenu = mainMenu.addMenu('View')
         searchMenu = mainMenu.addMenu('Search')
         toolsMenu = mainMenu.addMenu('Tools')
         helpMenu = mainMenu.addMenu('Help')
 
-        self.table_widget = MyTableWidget(self)
-        self.setCentralWidget(self.table_widget)
+        self.pdfDisplay = PdfDisplay(self)
+        self.setCentralWidget(self.pdfDisplay)
+
+        openFile.triggered.connect(self.openFile)
 
         self.show()
+    def exiting(self):
+        tempPath = self.fullPath+"/temp/"
+        for file in os.listdir(tempPath):
+            os.remove(tempPath+file)
 
-class MyTableWidget(QWidget):
+class PdfDisplay(QWidget):
 
     def __init__(self, parent):
         super(QWidget, self).__init__(parent)
@@ -82,17 +91,19 @@ class MyTableWidget(QWidget):
 
         # Initialize tab screen
         self.tabs = QTabWidget()
-        self.tab1 = QWidget()
-        self.tab2 = QWidget()
+
+        self.tab1 = QScrollArea()
+        self.tab1.setWidget(QWidget())
+        self.tab1.setWidgetResizable(True)
+
         self.tabs.resize(300,200)
 
         # Add tabs
-        self.tabs.addTab(self.tab1,"Tab 1")
-        self.tabs.addTab(self.tab2,"Tab 2")
+
 
         # Create first tab
-        #self.tab1.layout = QVBoxLayout(self)
-        self.pushButton1 = QPushButton("PyQt5 button")
+        #self.tab1.layout = QGridLayout(self)
+        #self.pushButton1 = QPushButton("PyQt5 button")
         #self.tab1.layout.addWidget(self.pushButton1)
         #self.tab1.setLayout(self.tab1.layout)
 
@@ -100,8 +111,23 @@ class MyTableWidget(QWidget):
         #self.layout.addWidget(self.tabs)
         #self.setLayout(self.layout)
 
+    #https://stackoverflow.com/questions/17002260/how-to-make-a-pyqt-tabbed-interface-with-scroll-bars
+
+    def addPdfTab(self, images):
+        print("Tab added", images)
+        self.tabs.addTab(self.tab1,"Tab 1")
+        self.layout.addWidget(self.tabs)
+
+        label = QLabel(self)
+        pixmap = QPixmap(images[0])
+        label.setPixmap(pixmap)
+        label.setGeometry(100,100,500,500)
+
+        label.show()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = App()
-    sys.exit(app.exec_())
+    appExec = app.exec_()
+    atexit.register(ex.exiting)
+    sys.exit(appExec)
