@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
-#https://pythonspot.com/pyqt5/
-#http://zetcode.com/gui/pyqt5/widgets2/
+
 
 import sys
 import atexit
@@ -13,8 +12,12 @@ from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QFileDialog, QLabel, QScrollArea
 
+#Many references used from :
+#https://pythonspot.com/pyqt5/
+#http://zetcode.com/gui/pyqt5/widgets2/
 class App(QMainWindow):
 
+    #Creates main window
     def __init__(self):
         super().__init__()
         self.title = 'PyQt5 simple window - pythonspot.com'
@@ -24,6 +27,7 @@ class App(QMainWindow):
         self.height = 480
         self.fullPath = "/home/shini/Documents/pdfEditor/pythonEnv/src"
         self.initUI()
+        self.showMaximized()
 
     def testPopup(self):
         QMessageBox.about(self, "Warning!", "Your computer is infected with Ebola")
@@ -36,12 +40,13 @@ class App(QMainWindow):
 
         tempPath = self.fullPath+"/temp/"
 
+        #Converts pdf to series of images.
         images = convert_from_path(myPDF[0])
 
-        pg = 0
-        imgList=[]
+        pg = 0 #page counter
+        imgList=[] #stores path of list of images
         for image in images:
-            image.save(tempPath+baseName+str(pg)+"jpg","JPEG")
+            image.save(tempPath+baseName+str(pg)+"jpg","JPEG") #saves images to a path
             imgList.append(tempPath+baseName+str(pg)+"jpg")
             pg+=1
 
@@ -57,7 +62,7 @@ class App(QMainWindow):
         lbl = QLabel(self)
         lbl.setPixmap(pixmap)
 
-
+    #USER INTERFACE
     def initUI(self):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
@@ -73,15 +78,20 @@ class App(QMainWindow):
         helpMenu = mainMenu.addMenu('Help')
 
         self.pdfDisplay = PdfDisplay(self)
+
+
         self.setCentralWidget(self.pdfDisplay)
 
         openFile.triggered.connect(self.openFile)
 
         self.show()
+
+    #EXITING PROGRAM
     def exiting(self):
         tempPath = self.fullPath+"/temp/"
         for file in os.listdir(tempPath):
             os.remove(tempPath+file)
+
 
 class PdfDisplay(QWidget):
 
@@ -89,41 +99,42 @@ class PdfDisplay(QWidget):
         super(QWidget, self).__init__(parent)
         self.layout = QVBoxLayout(self)
 
-        # Initialize tab screen
-        self.tabs = QTabWidget()
-
-        self.tab1 = QScrollArea()
-        self.tab1.setWidget(QWidget())
-        self.tab1.setWidgetResizable(True)
-
-        self.tabs.resize(300,200)
-
-        # Add tabs
 
 
-        # Create first tab
-        #self.tab1.layout = QGridLayout(self)
-        #self.pushButton1 = QPushButton("PyQt5 button")
-        #self.tab1.layout.addWidget(self.pushButton1)
-        #self.tab1.setLayout(self.tab1.layout)
 
-        # Add tabs to widget
-        #self.layout.addWidget(self.tabs)
-        #self.setLayout(self.layout)
+
+
+
 
     #https://stackoverflow.com/questions/17002260/how-to-make-a-pyqt-tabbed-interface-with-scroll-bars
 
     def addPdfTab(self, images):
-        print("Tab added", images)
-        self.tabs.addTab(self.tab1,"Tab 1")
-        self.layout.addWidget(self.tabs)
 
-        label = QLabel(self)
-        pixmap = QPixmap(images[0])
-        label.setPixmap(pixmap)
-        label.setGeometry(100,100,500,500)
+        pdfWidget = QWidget()
+        imageSet = QVBoxLayout(pdfWidget)
 
-        label.show()
+        for i in range(0, len(images)):
+            label = QLabel(self)
+            pixmap = QPixmap(images[i])
+            label.setPixmap(pixmap)
+            label.setGeometry(0,0,2000,2000)
+            imageSet.addWidget(label)
+
+        pdfWidget.layout = imageSet
+
+
+
+
+
+        #https://www.programcreek.com/python/example/82631/PyQt5.QtWidgets.QScrollArea
+        self.pdfScroll = QScrollArea()
+        self.pdfScroll.setWidget(pdfWidget)
+        self.pdfScroll.setFixedWidth(2000);
+        self.pdfScroll.setFixedHeight(1000);
+        #pdfScroll.setWidgetResizable(True)
+
+        self.pdfScroll.show();
+        #label.show()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
