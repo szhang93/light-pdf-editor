@@ -1,0 +1,4 @@
+*.jpg
+*.pdf
+__pycache__/
+temp/
