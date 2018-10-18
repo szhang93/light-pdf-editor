@@ -28,6 +28,7 @@ class App(QMainWindow):
         self.height = 480
         self.fullPath = "/home/shini/Documents/projects/pdfEditor/pythonEnv/src"
 
+
         self.imgList = [] #list of images
         self.initUI()
         self.showMaximized()
@@ -120,6 +121,7 @@ class PdfDisplay(QWidget):
         pdfWidget = QWidget()
         imageSet = QVBoxLayout(pdfWidget)
 
+
         for i in range(0, len(images)):
             label = QLabel(self)
             pixmap = QPixmap(images[i])
@@ -131,8 +133,9 @@ class PdfDisplay(QWidget):
         #https://www.programcreek.com/python/example/82631/PyQt5.QtWidgets.QScrollArea
         self.pdfScroll = QScrollArea()
         self.pdfScroll.setWidget(pdfWidget)
-        self.pdfScroll.setFixedWidth(2000);
-        self.pdfScroll.setFixedHeight(1000);
+        self.pdfScroll.setFixedWidth(2000)
+        self.pdfScroll.setFixedHeight(1000)
+        self.layout.addWidget(self.pdfScroll)
         #pdfScroll.setWidgetResizable(True)
 
         self.pdfScroll.show();
