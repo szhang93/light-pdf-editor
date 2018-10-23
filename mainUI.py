@@ -7,10 +7,11 @@ import PyPDF2
 import img2pdf
 from pdf2image import convert_from_path, convert_from_bytes
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QWidget, QAction, QTabWidget,QVBoxLayout, QMessageBox, QGridLayout
-from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtGui import QIcon, QPixmap, QPainter, QFont
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QFileDialog, QLabel, QScrollArea
 
+from basicFunctions import *
 #Many references used from :
 #https://pythonspot.com/pyqt5/
 #http://zetcode.com/gui/pyqt5/widgets2/
@@ -34,7 +35,7 @@ class App(QMainWindow):
         self.showMaximized()
 
     def testPopup(self):
-        QMessageBox.about(self, "Warning!", "Your computer is infected with Ebola")
+        QMessageBox.about(self, "message")
 
     def openFile(self):
         myPDF = QFileDialog.getOpenFileName(self, "open PDF", self.fullPath, "PDF Files(*.pdf)")
@@ -113,21 +114,57 @@ class PdfDisplay(QWidget):
     def __init__(self, parent):
         super(QWidget, self).__init__(parent)
         self.layout = QVBoxLayout(self)
+        self.images = []
+        self.pixmaps = []
+        self.labels = []
+
+
+    #https://programtalk.com/python-examples/PyQt5.QtGui.QMouseEvent/
+    def mousePressEvent(self, event, label, pixmap):
+        print(self.labels[0])
+        print(self.labels[1])
+        print(self.labels[2])
+        print(label)
+        print(event)
+        pos = event.pos()
+        print(pos)
+        painter = QPainter(pixmap)
+        painter.setFont(QFont('Arial', 50))
+        painter.drawText(pos, "hello world")
+        label.setPixmap(pixmap)
+
 
     #https://stackoverflow.com/questions/17002260/how-to-make-a-pyqt-tabbed-interface-with-scroll-bars
-
     def addPdfTab(self, images):
 
         pdfWidget = QWidget()
         imageSet = QVBoxLayout(pdfWidget)
+        self.images = images
 
 
         for i in range(0, len(images)):
             label = QLabel(self)
             pixmap = QPixmap(images[i])
+
+            #https://stackoverflow.com/questions/3504522/pyqt-get-pixel-position-and-value-when-mouse-click-on-the-image
+            #addTextWithPix = lambda x : addText(pixmap)
+            #addTextWithPix = lambda
+
+
+            label.setGeometry(0,0,10,10)
             label.setPixmap(pixmap)
-            label.setGeometry(0,0,2000,2000)
+            self.pixmaps.append(pixmap)
+            self.labels.append(label)
             imageSet.addWidget(label)
+
+        self.labels[0].mousePressEvent = lambda event: self.mousePressEvent(event, self.labels[0], self.pixmaps[0])
+        self.labels[1].mousePressEvent = lambda event: self.mousePressEvent(event, self.labels[1], self.pixmaps[1])
+        self.labels[2].mousePressEvent = lambda event: self.mousePressEvent(event, self.labels[2], self.pixmaps[2])
+        #for i in range(0, len(self.labels)):
+            #self.labels[i].mousePressEvent = lambda event: self.mousePressEvent(event, self.labels[i], self.pixmaps[i])
+            #self.labels[i].setScaledContents(True)
+
+
 
         pdfWidget.layout = imageSet
         #https://www.programcreek.com/python/example/82631/PyQt5.QtWidgets.QScrollArea
