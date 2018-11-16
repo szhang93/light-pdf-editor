@@ -18,10 +18,9 @@ from basicFunctions import *
 class App(QMainWindow):
 
     #Creates main window
-
-
     def __init__(self):
         super().__init__()
+        #Geometry info
         self.title = 'PyQt5 simple window - pythonspot.com'
         self.left = 10
         self.top = 10
@@ -32,17 +31,19 @@ class App(QMainWindow):
 
         self.imgList = [] #list of images
         self.initUI()
-        self.showMaximized()
+        self.showMaximized() #fullscreen
 
+    #basic tester
     def testPopup(self):
         QMessageBox.about(self, "message")
 
     def openFile(self):
         myPDF = QFileDialog.getOpenFileName(self, "open PDF", self.fullPath, "PDF Files(*.pdf)")
-        print(myPDF[0]) #getOpenFileName returns an array
+        #print(myPDF[0]) #getOpenFileName returns an array
         baseName = os.path.basename(myPDF[0])
-        print(baseName)
+        #print(baseName)
 
+        #temporarily stores the opened images
         tempPath = self.fullPath+"/temp/"
 
         #Converts pdf to series of images.
@@ -120,12 +121,12 @@ class PdfDisplay(QWidget):
 
 
     #https://programtalk.com/python-examples/PyQt5.QtGui.QMouseEvent/
-    def mousePressEvent(self, event, label, pixmap):
-        print(self.labels[0])
-        print(self.labels[1])
-        print(self.labels[2])
+    def mousePressEventL(self, event, label, pixmap):
+        #print(self.labels[0])
+        #print(self.labels[1])
+        #print(self.labels[2])
         print(label)
-        print(event)
+        #print(event)
         pos = event.pos()
         print(pos)
         painter = QPainter(pixmap)
@@ -133,6 +134,8 @@ class PdfDisplay(QWidget):
         painter.drawText(pos, "hello world")
         label.setPixmap(pixmap)
 
+    def attachMousePressEvent(self, i):
+        self.labels[i].mousePressEvent = lambda event: self.mousePressEventL(event, self.labels[i], self.pixmaps[i])
 
     #https://stackoverflow.com/questions/17002260/how-to-make-a-pyqt-tabbed-interface-with-scroll-bars
     def addPdfTab(self, images):
@@ -157,11 +160,13 @@ class PdfDisplay(QWidget):
             self.labels.append(label)
             imageSet.addWidget(label)
 
-        self.labels[0].mousePressEvent = lambda event: self.mousePressEvent(event, self.labels[0], self.pixmaps[0])
-        self.labels[1].mousePressEvent = lambda event: self.mousePressEvent(event, self.labels[1], self.pixmaps[1])
-        self.labels[2].mousePressEvent = lambda event: self.mousePressEvent(event, self.labels[2], self.pixmaps[2])
-        #for i in range(0, len(self.labels)):
-            #self.labels[i].mousePressEvent = lambda event: self.mousePressEvent(event, self.labels[i], self.pixmaps[i])
+        #self.labels[0].mousePressEvent = lambda event: self.mousePressEventL(event, self.labels[0], self.pixmaps[0])
+        #self.labels[1].mousePressEvent = lambda event: self.mousePressEventL(event, self.labels[1], self.pixmaps[1])
+        #self.labels[2].mousePressEvent = lambda event: self.mousePressEventL(event, self.labels[2], self.pixmaps[2])
+
+        for i in range(0, len(self.labels)):
+        #    self.labels[i].mousePressEvent = lambda event: self.mousePressEventL(event, self.labels[i], self.pixmaps[i])
+            self.attachMousePressEvent(i);
             #self.labels[i].setScaledContents(True)
 
 
