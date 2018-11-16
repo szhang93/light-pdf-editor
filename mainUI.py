@@ -60,6 +60,11 @@ class App(QMainWindow):
         #self.displayImg(images)
 
     def saveFile(self):
+        pg = 0;
+        for myPix in self.pdfDisplay.pixmaps:
+            myPix.save(self.imgList[pg], "JPG")
+            pg+=1;
+
         #https://stackoverflow.com/questions/27327513/create-pdf-from-a-list-of-images
         myPDF = QFileDialog.getSaveFileName(self, "save PDF", self.fullPath, "PDF Files(*.pdf)")
         myPDF = os.path.basename(myPDF[0])
