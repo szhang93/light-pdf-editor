@@ -171,6 +171,7 @@ class PdfDisplay(QWidget):
 
 
 
+
         pdfWidget.layout = imageSet
         #https://www.programcreek.com/python/example/82631/PyQt5.QtWidgets.QScrollArea
         self.pdfScroll = QScrollArea()
