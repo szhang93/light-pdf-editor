@@ -9,12 +9,15 @@ from pdf2image import convert_from_path, convert_from_bytes
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QWidget, QAction, QTabWidget,QVBoxLayout, QMessageBox, QGridLayout
 from PyQt5.QtGui import QIcon, QPixmap, QPainter, QFont
 from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtWidgets import QFileDialog, QLabel, QScrollArea
+from PyQt5.QtWidgets import QFileDialog, QLabel, QScrollArea, QLineEdit, QMessageBox
 
 from basicFunctions import *
 #Many references used from :
 #https://pythonspot.com/pyqt5/
 #http://zetcode.com/gui/pyqt5/widgets2/
+
+editMode = True;
+
 class App(QMainWindow):
 
     #Creates main window
@@ -83,6 +86,13 @@ class App(QMainWindow):
         lbl = QLabel(self)
         lbl.setPixmap(pixmap)
 
+
+    def toggleEditOnOff(self):
+        global editMode
+        if(editMode):
+            editMode = False;
+        else:
+            editMode = True;
     #USER INTERFACE
     def initUI(self):
         self.setWindowTitle(self.title)
@@ -94,11 +104,14 @@ class App(QMainWindow):
         openFile = fileMenu.addAction("Open")
         saveFile = fileMenu.addAction("Save")
         editMenu = mainMenu.addMenu('Edit')
+        editFile = editMenu.addAction("Edit Mode")
         viewMenu = mainMenu.addMenu('View')
         searchMenu = mainMenu.addMenu('Search')
         toolsMenu = mainMenu.addMenu('Tools')
         helpMenu = mainMenu.addMenu('Help')
 
+
+        editFile.triggered.connect(self.toggleEditOnOff)
         self.pdfDisplay = PdfDisplay(self)
         self.setCentralWidget(self.pdfDisplay)
 
@@ -123,21 +136,65 @@ class PdfDisplay(QWidget):
         self.images = []
         self.pixmaps = []
         self.labels = []
+        self.textBoxes = []
 
-
+    def textBoxConfirmed(self, pos, pixmap, label, text):
+        painter = QPainter(pixmap)
+        painter.setFont(QFont('Arial', 50))
+        painter.drawText(pos, text)
+        label.setPixmap(pixmap)
+        self.textbox.hide();
+        self.confirmButton.hide()
+        self.declineButton.hide()
+        
+    def textBoxDeclined():
+        self.textbox.hide();
+        self.confirmButton.hide()
+        self.declineButton.hide()
     #https://programtalk.com/python-examples/PyQt5.QtGui.QMouseEvent/
     def mousePressEventL(self, event, label, pixmap):
         #print(self.labels[0])
         #print(self.labels[1])
         #print(self.labels[2])
+        global editMode
+        if(not editMode):
+            return
+
         print(label)
         #print(event)
         pos = event.pos()
-        print(pos)
-        painter = QPainter(pixmap)
-        painter.setFont(QFont('Arial', 50))
-        painter.drawText(pos, "hello world")
-        label.setPixmap(pixmap)
+        #print(pos)
+        #painter = QPainter(pixmap)
+
+        #https://pythonspot.com/pyqt5-textbox-example/
+
+
+        #WE NEED TO SEPARATE TEXT BOXES AS THERE CAN BE MULTIPLE
+
+        textBoxConfirmation = False
+        # Create textbox
+        self.textbox = QLineEdit(self)
+        self.textbox.move(pos)
+        self.textbox.resize(280,40)
+
+        # Create a button in the window
+        self.confirmButton = QPushButton('Confirm', self)
+        self.confirmButton.move(pos.x(), pos.y()+40)
+        self.declineButton = QPushButton('No', self)
+        self.declineButton.move(pos.x(), pos.y()+80)
+
+        self.textbox.show()
+        self.confirmButton.show()
+        self.declineButton.show()
+
+        # connect button to function on_click
+        self.confirmButton.clicked.connect(lambda :self.textBoxConfirmed(pos, pixmap, label, self.textbox.text()))
+        self.confirmButton.clicked.connect(textBoxDeclined)
+
+
+        #painter.setFont(QFont('Arial', 50))
+        #painter.drawText(pos, "hello world")
+        #label.setPixmap(pixmap)
 
     def attachMousePressEvent(self, i):
         self.labels[i].mousePressEvent = lambda event: self.mousePressEventL(event, self.labels[i], self.pixmaps[i])
