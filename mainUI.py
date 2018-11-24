@@ -71,14 +71,14 @@ class App(QMainWindow):
         #https://stackoverflow.com/questions/27327513/create-pdf-from-a-list-of-images
         myPDF = QFileDialog.getSaveFileName(self, "save PDF", self.fullPath, "PDF Files(*.pdf)")
         myPDF = os.path.basename(myPDF[0])
-        print("list of images to pdf:\n",self.imgList)
+        #print("list of images to pdf:\n",self.imgList)
         with open(myPDF,"wb") as f:
             f.write(img2pdf.convert(self.imgList))
 
 
 
     def displayImg(self,images):
-        print(images)
+        #print(images)
         pixmap = QPixmap()
         for i in range(0, len(images)):
             pixmap.loadFromData(images[i])
@@ -136,23 +136,38 @@ class PdfDisplay(QWidget):
         self.images = []
         self.pixmaps = []
         self.labels = []
-        self.textBoxes = []
+        self.textBoxes = {}
+        self.textBoxConfirms = {}
+        self.textBoxDeclines = {}
 
-    def textBoxConfirmed(self, pos, pixmap, label, text):
+    def removeTextBox(self, textBoxHash):
+        #https://stackoverflow.com/questions/5899826/pyqt-how-to-remove-a-widget
+        self.textBoxes[textBoxHash].deleteLater()
+        self.textBoxConfirms[textBoxHash].deleteLater()
+        self.textBoxDeclines[textBoxHash].deleteLater()
+        self.textBoxes[textBoxHash] = None
+        self.textBoxConfirms[textBoxHash] = None
+        self.textBoxDeclines[textBoxHash] = None
+
+    def textBoxConfirmed(self,i, pos, pixmap, label, text):
         painter = QPainter(pixmap)
         painter.setFont(QFont('Arial', 50))
         painter.drawText(pos, text)
         label.setPixmap(pixmap)
-        self.textbox.hide();
-        self.confirmButton.hide()
-        self.declineButton.hide()
-        
-    def textBoxDeclined():
-        self.textbox.hide();
-        self.confirmButton.hide()
-        self.declineButton.hide()
+        textBoxHash = "("+str(pos.x()) + "," +str(pos.y())+ ")"+  "_" + str(i)
+        self.removeTextBox(textBoxHash)
+        #self.textBoxes[textBoxHash].hide();
+        #self.textBoxConfirms[textBoxHash].hide()
+        #self.declineButton.hide()
+
+    def textBoxDeclined(self, i, pos):
+        textBoxHash = "("+str(pos.x()) + "," +str(pos.y())+ ")"+  "_" + str(i)
+        #self.textbox.hide();
+        #self.confirmButton.hide()
+        #self.declineButton.hide()
+        self.removeTextBox(textBoxHash)
     #https://programtalk.com/python-examples/PyQt5.QtGui.QMouseEvent/
-    def mousePressEventL(self, event, label, pixmap):
+    def mousePressEventL(self, event, i, label, pixmap):
         #print(self.labels[0])
         #print(self.labels[1])
         #print(self.labels[2])
@@ -160,7 +175,7 @@ class PdfDisplay(QWidget):
         if(not editMode):
             return
 
-        print(label)
+        #print(label)
         #print(event)
         pos = event.pos()
         #print(pos)
@@ -173,23 +188,26 @@ class PdfDisplay(QWidget):
 
         textBoxConfirmation = False
         # Create textbox
-        self.textbox = QLineEdit(self)
-        self.textbox.move(pos)
-        self.textbox.resize(280,40)
+
+        textBoxHash = "("+str(pos.x()) + "," +str(pos.y())+ ")"+  "_" + str(i)
+        #print(textBoxHash+"\n\n")
+        self.textBoxes[textBoxHash] = QLineEdit(self)
+        self.textBoxes[textBoxHash].move(pos)
+        self.textBoxes[textBoxHash].resize(280,40)
 
         # Create a button in the window
-        self.confirmButton = QPushButton('Confirm', self)
-        self.confirmButton.move(pos.x(), pos.y()+40)
-        self.declineButton = QPushButton('No', self)
-        self.declineButton.move(pos.x(), pos.y()+80)
+        self.textBoxConfirms[textBoxHash] = QPushButton('Confirm', self)
+        self.textBoxConfirms[textBoxHash].move(pos.x(), pos.y()+40)
+        self.textBoxDeclines[textBoxHash] = QPushButton('No', self)
+        self.textBoxDeclines[textBoxHash].move(pos.x(), pos.y()+80)
 
-        self.textbox.show()
-        self.confirmButton.show()
-        self.declineButton.show()
+        self.textBoxes[textBoxHash].show()
+        self.textBoxConfirms[textBoxHash].show()
+        self.textBoxDeclines[textBoxHash].show()
 
         # connect button to function on_click
-        self.confirmButton.clicked.connect(lambda :self.textBoxConfirmed(pos, pixmap, label, self.textbox.text()))
-        self.confirmButton.clicked.connect(textBoxDeclined)
+        self.textBoxConfirms[textBoxHash].clicked.connect(lambda :self.textBoxConfirmed(i, pos, pixmap, label, self.textBoxes[textBoxHash].text()))
+        self.textBoxDeclines[textBoxHash].clicked.connect(lambda :self.textBoxDeclined(i, pos))
 
 
         #painter.setFont(QFont('Arial', 50))
@@ -197,7 +215,7 @@ class PdfDisplay(QWidget):
         #label.setPixmap(pixmap)
 
     def attachMousePressEvent(self, i):
-        self.labels[i].mousePressEvent = lambda event: self.mousePressEventL(event, self.labels[i], self.pixmaps[i])
+        self.labels[i].mousePressEvent = lambda event: self.mousePressEventL(event, i, self.labels[i], self.pixmaps[i])
 
     #https://stackoverflow.com/questions/17002260/how-to-make-a-pyqt-tabbed-interface-with-scroll-bars
     def addPdfTab(self, images):
