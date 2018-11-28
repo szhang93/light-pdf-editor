@@ -23,8 +23,8 @@ In Progress:
 ---------------------------
 * Display pdf files with zoom and default scaling
 * Allow rearranging pages, appending images(jpg)/pdf files
-..* Can only be done after edits are commited
-* Disallow opening large files 
+  * Can only be done after edits are commited
+* Disalloopening large files 
 
 Credits:
 ---------------------------
