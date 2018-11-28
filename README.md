@@ -2,13 +2,6 @@
 Lightweight pdf editor intended for editing small pdf files (up to 20 pages).
 
 
-Bucket List:
--------------------------
-* Create complete interface with previews, editor panel, etc 
-* Add functionality including rearranging pages, tab reordering, image insertion, text insertion preview, undo redo etc
-* Improve UI, such as automatic 
-
-
 Current Features:
 -----------------------
 * Can open, view, and save files 
