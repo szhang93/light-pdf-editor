@@ -1,9 +1,11 @@
 #!/usr/bin/python3
 
+# Main entrance
+
 import sys
 import atexit
 import os
-from mainUI import *
+from app import *
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
