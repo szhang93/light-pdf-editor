@@ -111,6 +111,8 @@ class App(QMainWindow):
         editFile.triggered.connect(self.toggleEditOnOff)
         #self.pdfDisplay = PdfDisplay(self)
         self.tabMan = TabMan(self)
+
+        self.layout.addWidget(self.tabMan)
         self.setCentralWidget(self.tabMan)
 
         openFile.triggered.connect(self.openFile)

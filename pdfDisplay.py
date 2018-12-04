@@ -22,6 +22,7 @@ class TabMan(QWidget):
         idx = len(self.tabList)
         self.tabList.append(PdfDisplay(self.parent))
         self.tabList[idx].addPdfTab(images)
+        #self.layout.addWidget(self.tabList[idx])
         self.tabManager.addTab(self.tabList[idx], self.fileNames[idx])
 
     def getPdfDisplay(self, idx):
@@ -42,6 +43,8 @@ class PdfDisplay(QWidget):
         self.textBoxes = {}
         self.textBoxConfirms = {}
         self.textBoxDeclines = {}
+        self.pageForms = [] #layouts
+        self.edits = []
 
     def removeTextBox(self, textBoxHash):
         #https://stackoverflow.com/questions/5899826/pyqt-how-to-remove-a-widget
@@ -77,19 +80,25 @@ class PdfDisplay(QWidget):
         # Create textbox
         textBoxHash = "("+str(pos.x()) + "," +str(pos.y())+ ")"+  "_" + str(i)
         #print(textBoxHash+"\n\n")
-        self.textBoxes[textBoxHash] = QLineEdit(self)
+        self.textBoxes[textBoxHash] = QLineEdit(self.edits[i])
+        #self.pageForms[i].addWidget(self.textBoxes[textBoxHash]);
         self.textBoxes[textBoxHash].move(pos)
         self.textBoxes[textBoxHash].resize(280,40)
 
+
+
         # Create a button in the window
-        self.textBoxConfirms[textBoxHash] = QPushButton('Confirm', self)
+        self.textBoxConfirms[textBoxHash] = QPushButton('Confirm', self.edits[i])
         self.textBoxConfirms[textBoxHash].move(pos.x(), pos.y()+40)
-        self.textBoxDeclines[textBoxHash] = QPushButton('No', self)
+        self.textBoxDeclines[textBoxHash] = QPushButton('No', self.edits[i])
         self.textBoxDeclines[textBoxHash].move(pos.x(), pos.y()+80)
 
         self.textBoxes[textBoxHash].show()
         self.textBoxConfirms[textBoxHash].show()
         self.textBoxDeclines[textBoxHash].show()
+
+
+
 
         # connect button to function on_click
         self.textBoxConfirms[textBoxHash].clicked.connect(lambda :self.textBoxConfirmed(i, pos, pixmap, label, self.textBoxes[textBoxHash].text()))
@@ -109,6 +118,11 @@ class PdfDisplay(QWidget):
 
 
         for i in range(0, len(images)):
+            page = QWidget()
+            pageLayout = QVBoxLayout(page)
+            self.pageForms.append(pageLayout)
+            self.edits.append(page)
+
             label = QLabel(self)
             pixmap = QPixmap(images[i])
 
@@ -116,9 +130,14 @@ class PdfDisplay(QWidget):
 
             label.setGeometry(0,0,10,10)
             label.setPixmap(pixmap)
+            label.hasScaledContents();
+            label.resize(500,500)
+
+            self.pageForms[i].addWidget(label)
+
             self.pixmaps.append(pixmap)
             self.labels.append(label)
-            imageSet.addWidget(label)
+            imageSet.addWidget(page) #stacked layout one
 
         for i in range(0, len(self.labels)):
             self.attachMousePressEvent(i);
@@ -130,8 +149,9 @@ class PdfDisplay(QWidget):
 
         self.pdfScroll = QScrollArea()
         self.pdfScroll.setWidget(pdfWidget)
-        self.pdfScroll.setFixedWidth(2000)
-        self.pdfScroll.setFixedHeight(1000)
+        self.pdfScroll.setWidgetResizable(True)
+        #self.pdfScroll.setFixedWidth(2000)
+        #self.pdfScroll.setFixedHeight(1000)
         self.layout.addWidget(self.pdfScroll)
 
         self.pdfScroll.show();
