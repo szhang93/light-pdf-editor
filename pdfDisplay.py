@@ -44,7 +44,12 @@ class PdfDisplay(QWidget):
         self.textBoxConfirms = {}
         self.textBoxDeclines = {}
         self.pageForms = [] #layouts
-        self.edits = []
+        self.pages = []
+
+
+        self.font = "Arial";
+        self.italic = False;
+        self.fontSize = 50;
 
     def removeTextBox(self, textBoxHash):
         #https://stackoverflow.com/questions/5899826/pyqt-how-to-remove-a-widget
@@ -57,8 +62,8 @@ class PdfDisplay(QWidget):
 
     def textBoxConfirmed(self,i, pos, pixmap, label, text):
         painter = QPainter(pixmap)
-        painter.setFont(QFont('Arial', 50))
-        painter.drawText(pos, text)
+        painter.setFont(QFont(self.font, self.fontSize))
+        painter.drawText(pos.x(), pos.y()+self.fontSize, text)
         label.setPixmap(pixmap)
         textBoxHash = "("+str(pos.x()) + "," +str(pos.y())+ ")"+  "_" + str(i)
         self.removeTextBox(textBoxHash)
@@ -80,17 +85,19 @@ class PdfDisplay(QWidget):
         # Create textbox
         textBoxHash = "("+str(pos.x()) + "," +str(pos.y())+ ")"+  "_" + str(i)
         #print(textBoxHash+"\n\n")
-        self.textBoxes[textBoxHash] = QLineEdit(self.edits[i])
+        self.textBoxes[textBoxHash] = QTextEdit(self.pages[i])
+
+        self.textBoxes[textBoxHash].setCurrentFont(QFont(self.font,self.fontSize))
         #self.pageForms[i].addWidget(self.textBoxes[textBoxHash]);
         self.textBoxes[textBoxHash].move(pos)
-        self.textBoxes[textBoxHash].resize(280,40)
+        self.textBoxes[textBoxHash].resize(280,100)
 
 
 
         # Create a button in the window
-        self.textBoxConfirms[textBoxHash] = QPushButton('Confirm', self.edits[i])
+        self.textBoxConfirms[textBoxHash] = QPushButton('Confirm', self.pages[i])
         self.textBoxConfirms[textBoxHash].move(pos.x(), pos.y()+40)
-        self.textBoxDeclines[textBoxHash] = QPushButton('No', self.edits[i])
+        self.textBoxDeclines[textBoxHash] = QPushButton('No', self.pages[i])
         self.textBoxDeclines[textBoxHash].move(pos.x(), pos.y()+80)
 
         self.textBoxes[textBoxHash].show()
@@ -101,7 +108,7 @@ class PdfDisplay(QWidget):
 
 
         # connect button to function on_click
-        self.textBoxConfirms[textBoxHash].clicked.connect(lambda :self.textBoxConfirmed(i, pos, pixmap, label, self.textBoxes[textBoxHash].text()))
+        self.textBoxConfirms[textBoxHash].clicked.connect(lambda :self.textBoxConfirmed(i, pos, pixmap, label, self.textBoxes[textBoxHash].toPlainText()))
         self.textBoxDeclines[textBoxHash].clicked.connect(lambda :self.textBoxDeclined(i, pos))
 
 
@@ -121,7 +128,7 @@ class PdfDisplay(QWidget):
             page = QWidget()
             pageLayout = QVBoxLayout(page)
             self.pageForms.append(pageLayout)
-            self.edits.append(page)
+            self.pages.append(page)
 
             label = QLabel(self)
             pixmap = QPixmap(images[i])
