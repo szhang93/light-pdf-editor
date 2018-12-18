@@ -60,10 +60,13 @@ class PdfDisplay(QWidget):
         self.textBoxConfirms[textBoxHash] = None
         self.textBoxDeclines[textBoxHash] = None
 
-    def textBoxConfirmed(self,i, pos, pixmap, label, text):
+    def textBoxConfirmed(self,i, pos, pixmap, label, text, width, height):
+        rect = QRectF(pos.x(), pos.y(), width, height);
         painter = QPainter(pixmap)
         painter.setFont(QFont(self.font, self.fontSize))
-        painter.drawText(pos.x(), pos.y()+self.fontSize, text)
+        #painter.drawText(pos.x(), pos.y()+self.fontSize, text)
+
+        painter.drawText(rect, text, option = QTextOption())
         label.setPixmap(pixmap)
         textBoxHash = "("+str(pos.x()) + "," +str(pos.y())+ ")"+  "_" + str(i)
         self.removeTextBox(textBoxHash)
@@ -86,12 +89,14 @@ class PdfDisplay(QWidget):
         textBoxHash = "("+str(pos.x()) + "," +str(pos.y())+ ")"+  "_" + str(i)
         #print(textBoxHash+"\n\n")
         self.textBoxes[textBoxHash] = QTextEdit(self.pages[i])
+        self.textBoxes[textBoxHash].setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff);
+        self.textBoxes[textBoxHash].setLineWrapMode(1);
 
         self.textBoxes[textBoxHash].setCurrentFont(QFont(self.font,self.fontSize))
         #self.pageForms[i].addWidget(self.textBoxes[textBoxHash]);
         self.textBoxes[textBoxHash].move(pos)
-        self.textBoxes[textBoxHash].resize(280,100)
-
+        self.textBoxes[textBoxHash].resize(500,500)
+        self.textBoxes[textBoxHash].setStyleSheet("background: rgba(0,0,0,0%)")
 
 
         # Create a button in the window
@@ -108,7 +113,11 @@ class PdfDisplay(QWidget):
 
 
         # connect button to function on_click
-        self.textBoxConfirms[textBoxHash].clicked.connect(lambda :self.textBoxConfirmed(i, pos, pixmap, label, self.textBoxes[textBoxHash].toPlainText()))
+        self.textBoxConfirms[textBoxHash].clicked.connect(lambda :self.textBoxConfirmed( \
+            i, pos, pixmap, label, self.textBoxes[textBoxHash].toPlainText(), \
+            self.textBoxes[textBoxHash].frameGeometry().width(), \
+            self.textBoxes[textBoxHash].frameGeometry().height() \
+            ))
         self.textBoxDeclines[textBoxHash].clicked.connect(lambda :self.textBoxDeclined(i, pos))
 
 
