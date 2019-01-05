@@ -3,8 +3,7 @@
 from globals import *
 
 
-defX = 300
-defY = 300
+
 class TextBox(QObject):
 
     def __init__ (self, parent, pos, i):
@@ -13,15 +12,18 @@ class TextBox(QObject):
         self.parent = parent
         #coordinate positions
 
+        self.sizeX = 300
+        self.sizeY = 300
+
         self.topLeftPos = pos
-        self.topRightPos = QPoint(pos.x()+defX, pos.y())
-        self.bottomLeftPos = QPoint(pos.x(), pos.y()+defY)
-        self.bottomRightPos = QPoint(pos.x()+defX, pos.y()+defY)
+        self.topRightPos = QPoint(pos.x()+self.sizeX, pos.y())
+        self.bottomLeftPos = QPoint(pos.x(), pos.y()+self.sizeY)
+        self.bottomRightPos = QPoint(pos.x()+self.sizeX, pos.y()+self.sizeY)
 
         self.topLeft = self.createDot(pos, parent.pages[i])
-        self.topRight = self.createDot(QPoint(pos.x()+defX, pos.y()),parent.pages[i]);
-        self.bottomLeft = self.createDot(QPoint(pos.x(), pos.y()+defY),parent.pages[i]);
-        self.bottomRight = self.createDot(QPoint(pos.x()+defX, pos.y()+defY),parent.pages[i]);
+        self.topRight = self.createDot(QPoint(pos.x()+self.sizeX, pos.y()),parent.pages[i]);
+        self.bottomLeft = self.createDot(QPoint(pos.x(), pos.y()+self.sizeY),parent.pages[i]);
+        self.bottomRight = self.createDot(QPoint(pos.x()+self.sizeX, pos.y()+self.sizeY),parent.pages[i]);
 
         self.addListeners(self.topLeft)
         self.addListeners(self.topRight)
@@ -37,8 +39,8 @@ class TextBox(QObject):
         self.textEdit.setCurrentFont(QFont(parent.font,parent.fontSize))
         #self.pageForms[i].addWidget(self.textEdit);
         self.textEdit.move(pos)
-        self.textEdit.resize(defX, defY)
-        self.textEdit.setStyleSheet("background: rgba(0,0,0,0%)")
+        self.textEdit.resize(self.sizeX, self.sizeY)
+        self.textEdit.setStyleSheet("background: rgba(100,0,0,10%)")
 
         self.textEdit.show()
         #create text field with default coordinates
@@ -84,17 +86,43 @@ class TextBox(QObject):
             self.bottomLeftPos = QPoint(self.bottomLeftPos.x()+offsetX, self.bottomLeftPos.y())
             self.topRight.move(self.topRightPos)
             self.bottomLeft.move(self.bottomLeftPos)
+            self.textEdit.move(self.topLeftPos)
+            self.sizeX = self.sizeX - offsetX
+            self.sizeY = self.sizeY - offsetY
+            self.textEdit.resize(self.sizeX, self.sizeY)
 
         elif(obj is self.topRight):
-            return 0
+            self.topRightPos = pos
+            self.bottomRightPos = QPoint(self.bottomRightPos.x()+offsetX, self.bottomRightPos.y())
+            self.topLeftPos = QPoint(self.topLeftPos.x(), self.topLeftPos.y()+offsetY)
+            self.bottomRight.move(self.bottomRightPos)
+            self.topLeft.move(self.topLeftPos)
+            self.textEdit.move(self.topLeftPos)
+            self.sizeX = self.sizeX + offsetX
+            self.sizeY = self.sizeY - offsetY
+            self.textEdit.resize(self.sizeX, self.sizeY)
+
         elif(obj is self.bottomLeft):
             self.bottomLeftPos = pos
             self.bottomRightPos = QPoint(self.bottomRightPos.x(), self.bottomRightPos.y()+offsetY)
             self.topLeftPos = QPoint(self.topLeftPos.x()+offsetX, self.topLeftPos.y())
             self.bottomRight.move(self.bottomRightPos)
             self.topLeft.move(self.topLeftPos)
+            self.textEdit.move(self.topLeftPos)
+            self.sizeX = self.sizeX - offsetX
+            self.sizeY = self.sizeY + offsetY
+            self.textEdit.resize(self.sizeX, self.sizeY)
+
         elif(obj is self.bottomRight):
-            return 0
+            self.bottomRightPos = pos
+            self.topRightPos = QPoint(self.topRightPos.x()+offsetX, self.topRightPos.y())
+            self.bottomLeftPos = QPoint(self.bottomLeftPos.x(), self.bottomLeftPos.y()+offsetY)
+            self.topRight.move(self.topRightPos)
+            self.bottomLeft.move(self.bottomLeftPos)
+            self.sizeX = self.sizeX + offsetX
+            self.sizeY = self.sizeY + offsetY
+            self.textEdit.resize(self.sizeX, self.sizeY)
+
         else:
             print("actionDragFin Error")
         obj.show()
@@ -112,6 +140,7 @@ class TextBox(QObject):
             print("saveInitialPosition Error")
 
     def __del__(self):
+        print("deleted\n")
         self.topLeft.deleteLater()
         self.topRight.deleteLater()
         self.bottomLeft.deleteLater()

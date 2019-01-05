@@ -61,8 +61,14 @@ class PdfDisplay(QWidget):
         self.textBoxConfirms[textBoxHash] = None
         self.textBoxDeclines[textBoxHash] = None
 
-    def textBoxConfirmed(self,i, pos, pixmap, label, text, width, height):
-        rect = QRectF(pos.x(), pos.y(), width, height);
+    def textBoxConfirmed(self,pos, i, pixmap, label, textBox):
+        x = textBox.topLeftPos.x()
+        y = textBox.topLeftPos.y()
+        width = textBox.textEdit.frameGeometry().width()
+        height = textBox.textEdit.frameGeometry().height()
+        text = textBox.textEdit.toPlainText()
+
+        rect = QRectF(x, y, width, height);
         painter = QPainter(pixmap)
         painter.setFont(QFont(self.font, self.fontSize))
         #painter.drawText(pos.x(), pos.y()+self.fontSize, text)
@@ -107,10 +113,7 @@ class PdfDisplay(QWidget):
 
         # connect button to function on_click
         self.textBoxConfirms[textBoxHash].clicked.connect(lambda :self.textBoxConfirmed( \
-            i, pos, pixmap, label, self.textBoxes[textBoxHash].textEdit.toPlainText(), \
-            self.textBoxes[textBoxHash].textEdit.frameGeometry().width(), \
-            self.textBoxes[textBoxHash].textEdit.frameGeometry().height() \
-            ))
+            pos, i, pixmap, label, self.textBoxes[textBoxHash]))
         self.textBoxDeclines[textBoxHash].clicked.connect(lambda :self.textBoxDeclined(i, pos))
 
 
