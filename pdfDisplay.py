@@ -1,5 +1,6 @@
 from globals import *
 from app import *
+from textBox import *
 
 class TabMan(QWidget):
     def __init__(self, parent):
@@ -53,7 +54,7 @@ class PdfDisplay(QWidget):
 
     def removeTextBox(self, textBoxHash):
         #https://stackoverflow.com/questions/5899826/pyqt-how-to-remove-a-widget
-        self.textBoxes[textBoxHash].deleteLater()
+        del self.textBoxes[textBoxHash]
         self.textBoxConfirms[textBoxHash].deleteLater()
         self.textBoxDeclines[textBoxHash].deleteLater()
         self.textBoxes[textBoxHash] = None
@@ -88,15 +89,7 @@ class PdfDisplay(QWidget):
         # Create textbox
         textBoxHash = "("+str(pos.x()) + "," +str(pos.y())+ ")"+  "_" + str(i)
         #print(textBoxHash+"\n\n")
-        self.textBoxes[textBoxHash] = QTextEdit(self.pages[i])
-        self.textBoxes[textBoxHash].setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff);
-        self.textBoxes[textBoxHash].setLineWrapMode(1);
-
-        self.textBoxes[textBoxHash].setCurrentFont(QFont(self.font,self.fontSize))
-        #self.pageForms[i].addWidget(self.textBoxes[textBoxHash]);
-        self.textBoxes[textBoxHash].move(pos)
-        self.textBoxes[textBoxHash].resize(500,500)
-        self.textBoxes[textBoxHash].setStyleSheet("background: rgba(0,0,0,0%)")
+        self.textBoxes[textBoxHash] = TextBox(self, pos, i)
 
 
         # Create a button in the window
@@ -105,7 +98,7 @@ class PdfDisplay(QWidget):
         self.textBoxDeclines[textBoxHash] = QPushButton('No', self.pages[i])
         self.textBoxDeclines[textBoxHash].move(pos.x(), pos.y()+80)
 
-        self.textBoxes[textBoxHash].show()
+
         self.textBoxConfirms[textBoxHash].show()
         self.textBoxDeclines[textBoxHash].show()
 
@@ -114,9 +107,9 @@ class PdfDisplay(QWidget):
 
         # connect button to function on_click
         self.textBoxConfirms[textBoxHash].clicked.connect(lambda :self.textBoxConfirmed( \
-            i, pos, pixmap, label, self.textBoxes[textBoxHash].toPlainText(), \
-            self.textBoxes[textBoxHash].frameGeometry().width(), \
-            self.textBoxes[textBoxHash].frameGeometry().height() \
+            i, pos, pixmap, label, self.textBoxes[textBoxHash].textEdit.toPlainText(), \
+            self.textBoxes[textBoxHash].textEdit.frameGeometry().width(), \
+            self.textBoxes[textBoxHash].textEdit.frameGeometry().height() \
             ))
         self.textBoxDeclines[textBoxHash].clicked.connect(lambda :self.textBoxDeclined(i, pos))
 
