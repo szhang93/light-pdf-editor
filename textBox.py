@@ -36,6 +36,7 @@ class TextBox(QObject):
         self.textEdit = QTextEdit(parent.pages[i])
         self.textEdit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff);
         self.textEdit.setLineWrapMode(1);
+        self.textEdit.setWordWrapMode(3);
 
         self.textEdit.setCurrentFont(QFont(parent.font,parent.fontSize))
         #self.pageForms[i].addWidget(self.textEdit);
@@ -130,6 +131,7 @@ class TextBox(QObject):
         else:
             print("actionDragFin Error")
         obj.show()
+        print(self.textEdit.toPlainText())
 
     def saveInitialPosition(self, event, obj):
         #Correct position is Box position + event pos

@@ -3,6 +3,7 @@
 from globals import *
 from basicFunctions import *
 from pdfDisplay import *
+from tools import *
 #Many references used from :
 #https://pythonspot.com/pyqt5/
 #http://zetcode.com/gui/pyqt5/widgets2/
@@ -102,16 +103,43 @@ class App(QMainWindow):
         saveFile = fileMenu.addAction("Save")
         editMenu = mainMenu.addMenu('Edit')
         editFile = editMenu.addAction("Edit Mode")
-        viewMenu = mainMenu.addMenu('View')
-        searchMenu = mainMenu.addMenu('Search')
-        toolsMenu = mainMenu.addMenu('Tools')
-        helpMenu = mainMenu.addMenu('Help')
 
 
         editFile.triggered.connect(self.toggleEditOnOff)
         #self.pdfDisplay = PdfDisplay(self)
         self.tabMan = TabMan(self)
+        self.tools = Tools(self)
 
+        self.toolbar = self.addToolBar("toolbar")
+        #http://zetcode.com/gui/pyqt5/menustoolbars/
+
+        add = QAction(QIcon('icons/plus.png'), 'Add', self)
+        add.triggered.connect(self.openFile)
+        add.setShortcut("Ctrl+O")
+
+        save = QAction(QIcon('icons/bookmark.png'), 'Save', self)
+        save.triggered.connect(self.saveFile)
+        save.setShortcut("Ctrl+S")
+
+        hand = QAction(QIcon('icons/hand.png'), 'Hand', self)
+        edit = QAction(QIcon('icons/pencil.png'), 'Edit', self)
+        settings = QAction(QIcon('icons/settings.png'), 'Settings', self)
+        confirm = QAction(QIcon('icons/checkmark.png'), 'Confirm', self)
+        cancel = QAction(QIcon('icons/x.png'), 'Cancel', self)
+
+        self.toolbar.addAction(add)
+
+        self.toolbar.addAction(save)
+        self.toolbar.addAction(hand)
+        self.toolbar.addAction(edit)
+        self.toolbar.addAction(settings)
+        self.toolbar.addAction(confirm)
+        self.toolbar.addAction(cancel)
+
+
+
+
+        self.layout.addWidget(self.tools)
         self.layout.addWidget(self.tabMan)
         self.setCentralWidget(self.tabMan)
 
