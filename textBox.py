@@ -15,15 +15,15 @@ class TextBox(QObject):
         self.sizeX = 300
         self.sizeY = 300
 
-        self.topLeftPos = pos
-        self.topRightPos = QPoint(pos.x()+self.sizeX, pos.y())
-        self.bottomLeftPos = QPoint(pos.x(), pos.y()+self.sizeY)
+        self.topLeftPos = QPoint(pos.x()-10, pos.y()-10)
+        self.topRightPos = QPoint(pos.x()+self.sizeX, pos.y()-10)
+        self.bottomLeftPos = QPoint(pos.x()-10, pos.y()+self.sizeY)
         self.bottomRightPos = QPoint(pos.x()+self.sizeX, pos.y()+self.sizeY)
 
-        self.topLeft = self.createDot(pos, parent.pages[i])
-        self.topRight = self.createDot(QPoint(pos.x()+self.sizeX, pos.y()),parent.pages[i]);
-        self.bottomLeft = self.createDot(QPoint(pos.x(), pos.y()+self.sizeY),parent.pages[i]);
-        self.bottomRight = self.createDot(QPoint(pos.x()+self.sizeX, pos.y()+self.sizeY),parent.pages[i]);
+        self.topLeft = self.createDot(self.topLeftPos, parent.pages[i])
+        self.topRight = self.createDot(self.topRightPos,parent.pages[i]);
+        self.bottomLeft = self.createDot(self.bottomLeftPos,parent.pages[i]);
+        self.bottomRight = self.createDot(self.bottomRightPos,parent.pages[i]);
 
         self.addListeners(self.topLeft)
         self.addListeners(self.topRight)
@@ -31,6 +31,7 @@ class TextBox(QObject):
         self.addListeners(self.bottomRight)
 
         self.initialPosition = pos
+        self.movingPosition = pos
 
         self.textEdit = QTextEdit(parent.pages[i])
         self.textEdit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff);
@@ -71,12 +72,15 @@ class TextBox(QObject):
         #if clicked inside box coordinates
 
     def actionDrag(self, event, obj):
-        pos = QCursor.pos()
-        obj.move(pos)
+        #pos = QCursor.pos()
+        self.movingPosition = self.movingPosition + event.pos()
+        obj.move(self.movingPosition)
+
         #if dragging corners
 
     def actionDragFin(self, event, obj):
-        pos = QCursor.pos()
+        #pos = QCursor.pos()
+        pos = self.movingPosition + event.pos()
         obj.move(pos)
         offsetX = pos.x() - self.initialPosition.x()
         offsetY = pos.y() - self.initialPosition.y()
@@ -86,7 +90,7 @@ class TextBox(QObject):
             self.bottomLeftPos = QPoint(self.bottomLeftPos.x()+offsetX, self.bottomLeftPos.y())
             self.topRight.move(self.topRightPos)
             self.bottomLeft.move(self.bottomLeftPos)
-            self.textEdit.move(self.topLeftPos)
+            self.textEdit.move(QPoint(self.topLeftPos.x()+10, self.topLeftPos.y()+10))
             self.sizeX = self.sizeX - offsetX
             self.sizeY = self.sizeY - offsetY
             self.textEdit.resize(self.sizeX, self.sizeY)
@@ -97,7 +101,7 @@ class TextBox(QObject):
             self.topLeftPos = QPoint(self.topLeftPos.x(), self.topLeftPos.y()+offsetY)
             self.bottomRight.move(self.bottomRightPos)
             self.topLeft.move(self.topLeftPos)
-            self.textEdit.move(self.topLeftPos)
+            self.textEdit.move(QPoint(self.topLeftPos.x()+10, self.topLeftPos.y()+10))
             self.sizeX = self.sizeX + offsetX
             self.sizeY = self.sizeY - offsetY
             self.textEdit.resize(self.sizeX, self.sizeY)
@@ -108,7 +112,7 @@ class TextBox(QObject):
             self.topLeftPos = QPoint(self.topLeftPos.x()+offsetX, self.topLeftPos.y())
             self.bottomRight.move(self.bottomRightPos)
             self.topLeft.move(self.topLeftPos)
-            self.textEdit.move(self.topLeftPos)
+            self.textEdit.move(QPoint(self.topLeftPos.x()+10, self.topLeftPos.y()+10))
             self.sizeX = self.sizeX - offsetX
             self.sizeY = self.sizeY + offsetY
             self.textEdit.resize(self.sizeX, self.sizeY)
@@ -128,6 +132,7 @@ class TextBox(QObject):
         obj.show()
 
     def saveInitialPosition(self, event, obj):
+        #Correct position is Box position + event pos
         if(obj is self.topLeft):
             self.initialPosition = self.topLeftPos
         elif(obj is self.topRight):
@@ -138,6 +143,7 @@ class TextBox(QObject):
             self.initialPosition = self.bottomRightPos
         else:
             print("saveInitialPosition Error")
+        self.movingPosition = self.initialPosition
 
     def __del__(self):
         print("deleted\n")
