@@ -82,11 +82,21 @@ class App(QMainWindow):
 
 
     def toggleEditOnOff(self):
+        print("edit mode trigggered")
         global editMode
         if(editMode):
             editMode = False;
         else:
             editMode = True;
+
+
+    def confirmEdit(self):
+        tab = self.tabMan.tabList[self.tabMan.getIdx()];
+        tab.textBoxConfirmed();
+
+    def cancelEdit(self):
+        tab = self.tabMan.tabList[self.tabMan.getIdx()];
+        tab.textBoxCanceled();
 
     #USER INTERFACE
     def initUI(self):
@@ -122,10 +132,18 @@ class App(QMainWindow):
         save.setShortcut("Ctrl+S")
 
         hand = QAction(QIcon('icons/hand.png'), 'Hand', self)
+
         edit = QAction(QIcon('icons/pencil.png'), 'Edit', self)
+        edit.triggered.connect(self.toggleEditOnOff)
+
         settings = QAction(QIcon('icons/settings.png'), 'Settings', self)
+
         confirm = QAction(QIcon('icons/checkmark.png'), 'Confirm', self)
+        confirm.triggered.connect(self.confirmEdit)
+
+
         cancel = QAction(QIcon('icons/x.png'), 'Cancel', self)
+        cancel.triggered.connect(self.cancelEdit)
 
         self.toolbar.addAction(add)
 
@@ -136,6 +154,12 @@ class App(QMainWindow):
         self.toolbar.addAction(confirm)
         self.toolbar.addAction(cancel)
 
+        #https://pythonprogramming.net/drop-down-button-window-styles-pyqt-tutorial/
+        fonts = QComboBox(self)
+        fonts.addItem("arial")
+        fonts.addItem("font-2")
+        fonts.addItem("another font")
+        self.toolbar.addWidget(fonts)
 
 
 

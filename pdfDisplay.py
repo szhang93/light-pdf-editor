@@ -41,47 +41,49 @@ class PdfDisplay(QWidget):
         self.images = []
         self.pixmaps = []
         self.labels = []
-        self.textBoxes = {}
-        self.textBoxConfirms = {}
-        self.textBoxDeclines = {}
+        self.textBoxes = []
         self.pageForms = [] #layouts
         self.pages = []
+        self.textBoxNum = 0
 
 
         self.font = "Arial";
         self.italic = False;
-        self.fontSize = 50;
-
-    def removeTextBox(self, textBoxHash):
-        #https://stackoverflow.com/questions/5899826/pyqt-how-to-remove-a-widget
-        del self.textBoxes[textBoxHash]
-        self.textBoxConfirms[textBoxHash].deleteLater()
-        self.textBoxDeclines[textBoxHash].deleteLater()
-        self.textBoxes[textBoxHash] = None
-        self.textBoxConfirms[textBoxHash] = None
-        self.textBoxDeclines[textBoxHash] = None
-
-    def textBoxConfirmed(self,pos, i, pixmap, label, textBox):
-        x = textBox.topLeftPos.x()
-        y = textBox.topLeftPos.y()
-        width = textBox.textEdit.frameGeometry().width()
-        height = textBox.textEdit.frameGeometry().height()
-        text = textBox.textEdit.toPlainText()
-
-        rect = QRectF(x, y, width, height);
-        painter = QPainter(pixmap)
-        painter.setFont(QFont(self.font, self.fontSize))
-        #painter.drawText(pos.x(), pos.y()+self.fontSize, text)
-
-        painter.drawText(rect, text, option = QTextOption())
-        label.setPixmap(pixmap)
-        textBoxHash = "("+str(pos.x()) + "," +str(pos.y())+ ")"+  "_" + str(i)
-        self.removeTextBox(textBoxHash)
+        self.fontSize = 12;
 
 
-    def textBoxDeclined(self, i, pos):
-        textBoxHash = "("+str(pos.x()) + "," +str(pos.y())+ ")"+  "_" + str(i)
-        self.removeTextBox(textBoxHash)
+
+    def textBoxConfirmed(self):
+
+
+        for textBox in self.textBoxes:
+            if textBox == None:
+                continue
+            x = textBox.topLeftPos.x()
+            y = textBox.topLeftPos.y()
+            width = textBox.textEdit.frameGeometry().width()
+            height = textBox.textEdit.frameGeometry().height()
+            text = textBox.textEdit.toPlainText()
+
+            rect = QRectF(x, y, width, height);
+            painter = QPainter(textBox.pixmap)
+            painter.begin(self)
+            painter.setFont(QFont(textBox.font, textBox.fontSize))
+            #painter.drawText(pos.x(), pos.y()+self.fontSize, text)
+
+            painter.drawText(rect, text, option = QTextOption())
+            textBox.label.setPixmap(textBox.pixmap)
+            #https://stackoverflow.com/questions/5899826/pyqt-how-to-remove-a-widget
+            textBox.__del__()
+            painter.end()
+
+    def textBoxCanceled(self):
+        for textBox in self.textBoxes:
+            if textBox == None:
+                continue
+            textBox.__del__()
+
+
     #https://programtalk.com/python-examples/PyQt5.QtGui.QMouseEvent/
     def mousePressEventL(self, event, i, label, pixmap):
         global editMode
@@ -93,28 +95,10 @@ class PdfDisplay(QWidget):
         #https://pythonspot.com/pyqt5-textbox-example/
 
         # Create textbox
-        textBoxHash = "("+str(pos.x()) + "," +str(pos.y())+ ")"+  "_" + str(i)
         #print(textBoxHash+"\n\n")
-        self.textBoxes[textBoxHash] = TextBox(self, pos, i)
+        self.textBoxes.append(TextBox(self, pos, i, self.textBoxNum, pixmap, label))
+        self.textBoxNum+=1
 
-
-        # Create a button in the window
-        self.textBoxConfirms[textBoxHash] = QPushButton('Confirm', self.pages[i])
-        self.textBoxConfirms[textBoxHash].move(pos.x(), pos.y()+40)
-        self.textBoxDeclines[textBoxHash] = QPushButton('No', self.pages[i])
-        self.textBoxDeclines[textBoxHash].move(pos.x(), pos.y()+80)
-
-
-        self.textBoxConfirms[textBoxHash].show()
-        self.textBoxDeclines[textBoxHash].show()
-
-
-
-
-        # connect button to function on_click
-        self.textBoxConfirms[textBoxHash].clicked.connect(lambda :self.textBoxConfirmed( \
-            pos, i, pixmap, label, self.textBoxes[textBoxHash]))
-        self.textBoxDeclines[textBoxHash].clicked.connect(lambda :self.textBoxDeclined(i, pos))
 
 
 

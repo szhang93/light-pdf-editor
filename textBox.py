@@ -6,7 +6,7 @@ from globals import *
 
 class TextBox(QObject):
 
-    def __init__ (self, parent, pos, i):
+    def __init__ (self, parent, pos, i, textBoxNum, pixmap, label):
         super().__init__()
 
         self.parent = parent
@@ -15,6 +15,9 @@ class TextBox(QObject):
         self.sizeX = 300
         self.sizeY = 300
 
+        self.label = label
+        self.pixmap = pixmap
+        self.index = textBoxNum
         self.topLeftPos = QPoint(pos.x()-10, pos.y()-10)
         self.topRightPos = QPoint(pos.x()+self.sizeX, pos.y()-10)
         self.bottomLeftPos = QPoint(pos.x()-10, pos.y()+self.sizeY)
@@ -38,18 +41,32 @@ class TextBox(QObject):
         self.textEdit.setLineWrapMode(1);
         self.textEdit.setWordWrapMode(3);
 
-        self.textEdit.setCurrentFont(QFont(parent.font,parent.fontSize))
+        self.font = parent.font
+        self.fontSize = parent.fontSize
+        self.textEdit.setCurrentFont(QFont(self.font,self.fontSize))
+
+
+
         #self.pageForms[i].addWidget(self.textEdit);
         self.textEdit.move(pos)
         self.textEdit.resize(self.sizeX, self.sizeY)
         self.textEdit.setStyleSheet("background: rgba(100,0,0,10%)")
 
         self.textEdit.show()
+
+        #cancel = QAction(QIcon('icons/x.png'), 'Cancel', self)
+        self.cancel = QPushButton(QIcon('icons/x.png'),"",parent.pages[i])
+
+        self.cancel.move(QPoint(self.topRightPos.x(), self.topRightPos.y())) #64 is pixel height
+        self.cancel.show()
+        #self.cancel.keyPressEvent = self.__del__
+        self.cancel.mousePressEvent = lambda event: self.__del__()
         #create text field with default coordinates
 
         #create draggable dots with default coordinates
 
         #define action listener.
+
     def createDot(self, pos, parent):
         label = QLabel(parent)
         label.move(pos)
@@ -131,6 +148,7 @@ class TextBox(QObject):
         else:
             print("actionDragFin Error")
         obj.show()
+        self.cancel.move(QPoint(self.topRightPos.x(), self.topRightPos.y()))
         print(self.textEdit.toPlainText())
 
     def saveInitialPosition(self, event, obj):
@@ -154,3 +172,5 @@ class TextBox(QObject):
         self.bottomLeft.deleteLater()
         self.bottomRight.deleteLater()
         self.textEdit.deleteLater()
+        self.cancel.deleteLater()
+        self.parent.textBoxes[self.index] = None
