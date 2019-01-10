@@ -11,9 +11,10 @@ class TextBox(QObject):
 
         self.parent = parent
         #coordinate positions
-
-        self.sizeX = 300
-        self.sizeY = 300
+        #https://stackoverflow.com/questions/48716193/how-to-change-qlineedit-spacing-between-text-and-its-edge
+        fontHeight = QFontMetrics(QFont(parent.font)).height()
+        self.sizeX = parent.fontSize * 10
+        self.sizeY = parent.fontSize + fontHeight
 
         self.label = label
         self.pixmap = pixmap
@@ -39,7 +40,9 @@ class TextBox(QObject):
         self.textEdit = QTextEdit(parent.pages[i])
         self.textEdit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff);
         self.textEdit.setLineWrapMode(1);
-        self.textEdit.setWordWrapMode(3);
+        self.textEdit.setWordWrapMode(2);
+        #https://stackoverflow.com/questions/26441999/how-do-i-remove-the-space-between-qplaintextedit-and-its-contents
+        self.textEdit.document().setDocumentMargin(0)
 
         self.font = parent.font
         self.fontSize = parent.fontSize

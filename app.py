@@ -82,12 +82,13 @@ class App(QMainWindow):
 
 
     def toggleEditOnOff(self):
-        print("edit mode trigggered")
         global editMode
         if(editMode):
             editMode = False;
+            print("edit mode:", editMode)
         else:
             editMode = True;
+            print("edit mode:", editMode)
 
 
     def confirmEdit(self):
@@ -97,6 +98,19 @@ class App(QMainWindow):
     def cancelEdit(self):
         tab = self.tabMan.tabList[self.tabMan.getIdx()];
         tab.textBoxCanceled();
+
+    def changeFont(self, event):
+        #https://stackoverflow.com/questions/6061893/how-do-you-get-the-current-text-contents-of-a-qcombobox
+        font = str(self.comboFonts.currentText())
+        fontSizeStr = self.fontSize.toPlainText()
+        fontSize = 12
+        if(int(fontSizeStr)):
+            fontSize = int(fontSizeStr)
+
+        for myPdfDisplay in self.tabMan.tabList:
+            myPdfDisplay.font = font;
+            myPdfDisplay.fontSize = fontSize;
+        print("changed to font:", font, "size:", fontSize)
 
     #USER INTERFACE
     def initUI(self):
@@ -115,7 +129,7 @@ class App(QMainWindow):
         editFile = editMenu.addAction("Edit Mode")
 
 
-        editFile.triggered.connect(self.toggleEditOnOff)
+        #editFile.triggered.connect(self.toggleEditOnOff)
         #self.pdfDisplay = PdfDisplay(self)
         self.tabMan = TabMan(self)
         self.tools = Tools(self)
@@ -155,11 +169,25 @@ class App(QMainWindow):
         self.toolbar.addAction(cancel)
 
         #https://pythonprogramming.net/drop-down-button-window-styles-pyqt-tutorial/
-        fonts = QComboBox(self)
-        fonts.addItem("arial")
-        fonts.addItem("font-2")
-        fonts.addItem("another font")
-        self.toolbar.addWidget(fonts)
+        #https://stackoverflow.com/questions/17152979/i-have-a-pyqt-mainwindow-how-can-i-load-fonts-in-qlistwidget
+
+        allFonts = QFontDatabase().families()
+        self.comboFonts = QComboBox(self)
+        for myFont in allFonts:
+            self.comboFonts.addItem(myFont)
+        self.toolbar.addWidget(self.comboFonts)
+
+
+        #fonts.activated[str].connect(self.changeFont)
+
+
+
+        self.fontSize = QTextEdit(self)
+        self.toolbar.addWidget(self.fontSize)
+
+        self.fontConfirm = QPushButton("Confirm", None)
+        self.toolbar.addWidget(self.fontConfirm)
+        self.fontConfirm.mousePressEvent=self.changeFont
 
 
 

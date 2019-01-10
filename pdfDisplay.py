@@ -71,7 +71,9 @@ class PdfDisplay(QWidget):
             painter.setFont(QFont(textBox.font, textBox.fontSize))
             #painter.drawText(pos.x(), pos.y()+self.fontSize, text)
 
-            painter.drawText(rect, text, option = QTextOption())
+            option = QTextOption();
+            option.QWrapMode = QTextOption.WordWrap;
+            painter.drawText(rect, text, option)
             textBox.label.setPixmap(textBox.pixmap)
             #https://stackoverflow.com/questions/5899826/pyqt-how-to-remove-a-widget
             textBox.__del__()
@@ -87,8 +89,10 @@ class PdfDisplay(QWidget):
     #https://programtalk.com/python-examples/PyQt5.QtGui.QMouseEvent/
     def mousePressEventL(self, event, i, label, pixmap):
         global editMode
-        if(not editMode):
+        print("editMode:",editMode)
+        if(editMode==False):
             return
+
 
         pos = event.pos()
 
