@@ -1,30 +1,13 @@
 # pdf-light-editor
-Lightweight pdf editor intended for editing small pdf files (up to 20 pages).
+Lightweight pdf editor intended for editing small pdf files
 
 
-Current Features:
------------------------
-* Can open, view, and save files
-* Can insert basic text in files
-* Can open multiple files at once
-
-
-Issues:
+Bucket List:
 ---------------------------
-* Not efficient, crashes on large files
-
-Bugs:
----------------------------
-* Can open the same file twice
-
-
-In Progress:
----------------------------
-* Display pdf files with zoom and default scaling
-* for each pdf page label keep track of all the objects it has attached to it 
-* Allow rearranging pages, appending images(jpg)/pdf files
-  * Can only be done after edits are commited
-* Disallow opening large files
+* Display pdf with correct zoom
+* Allow saving pdf with file size option
+* Allow rearranging of pages
+* Insert manual text fields(that can't be overlapped)
 
 Credits:
 ---------------------------

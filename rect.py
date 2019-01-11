@@ -4,25 +4,21 @@ from globals import *
 
 
 
-class TextBox(QObject):
+class BoxField(QObject):
 
-    def __init__ (self, parent, pos, i, textBoxNum, pixmap, label):
+    # i is page num
+    def __init__ (self, parent, pos, i, BoxNum, pixmap, label):
         super().__init__()
-
-        self.fresh = True;
-
         self.parent = parent
         #coordinate positions
         #https://stackoverflow.com/questions/48716193/how-to-change-qlineedit-spacing-between-text-and-its-edge
         fontHeight = QFontMetrics(QFont(parent.font)).height()
-        #self.sizeX = parent.fontSize * 10
-        #self.sizeY = parent.fontSize + fontHeight
         self.sizeX = 0
         self.sizeY = 0
 
         self.label = label
         self.pixmap = pixmap
-        self.index = textBoxNum
+        self.index = BoxNum
         self.topLeftPos = QPoint(pos.x()-10, pos.y()-10)
         self.topRightPos = QPoint(pos.x()+self.sizeX, pos.y()-10)
         self.bottomLeftPos = QPoint(pos.x()-10, pos.y()+self.sizeY)
@@ -41,29 +37,19 @@ class TextBox(QObject):
         self.initialPosition = pos
         self.movingPosition = pos
 
-        self.textEdit = QTextEdit(parent.pages[i])
-        self.textEdit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff);
-        self.textEdit.setLineWrapMode(1);
-        self.textEdit.setWordWrapMode(2);
-        #https://stackoverflow.com/questions/26441999/how-do-i-remove-the-space-between-qplaintextedit-and-its-contents
-        self.textEdit.document().setDocumentMargin(0)
+        self.boxField = QRect(pos, QSize(100, 100))
+        self.boxField.moveCenter(pos)
+        self.boxField.setSize(QSize(100,100))
 
-        self.font = parent.font
-        self.fontSize = parent.fontSize
-        self.textEdit.setCurrentFont(QFont(self.font,self.fontSize))
+        #https://www.programcreek.com/python/example/99581/PyQt5.QtCore.QRect
+        self.painter = QPainter(pixmap)
+        self.color = QColor(100,100,100)
+        self.painter.fillRect(self.boxField,QBrush(self.color))
 
 
-
-        #self.pageForms[i].addWidget(self.textEdit);
-        self.textEdit.move(pos)
-        self.textEdit.resize(self.sizeX, self.sizeY)
-        self.textEdit.setStyleSheet("background: rgba(100,0,0,10%)")
-
-        self.textEdit.show()
 
         #cancel = QAction(QIcon('icons/x.png'), 'Cancel', self)
         self.cancel = QPushButton(QIcon('icons/x.png'),"",parent.pages[i])
-
         self.cancel.move(QPoint(self.topRightPos.x(), self.topRightPos.y())) #64 is pixel height
         self.cancel.show()
         #self.cancel.keyPressEvent = self.__del__
@@ -78,12 +64,11 @@ class TextBox(QObject):
         label = QLabel(parent)
         label.move(pos)
         label.resize(10,10)
-        label.setStyleSheet("background: rgba(100,0,0,100%)")
+        label.setStyleSheet("background: rgba(0,0,0,100%)")
         label.show()
         #https://stackoverflow.com/questions/11172420/moving-object-with-mouse
-
-
         return label
+
 
     def addListeners(self, obj):
         obj.mousePressEvent = lambda event: self.saveInitialPosition(event, obj)
@@ -98,26 +83,14 @@ class TextBox(QObject):
 
     def actionDrag(self, event, obj):
         #pos = QCursor.pos()
-        print(self.movingPosition)
-        print(event.pos())
-        if(not self.fresh):
-            #called from textBox instead of pdfDisplay
-            self.movingPosition = self.movingPosition + event.pos()
-        else:
-            self.movingPosition = event.pos()
-
+        self.movingPosition = self.movingPosition + event.pos()
         obj.move(self.movingPosition)
-
 
         #if dragging corners
 
     def actionDragFin(self, event, obj):
         #pos = QCursor.pos()
-        if(not self.fresh):
-            pos = self.movingPosition + event.pos()
-        else:
-            pos = event.pos()
-
+        pos = self.movingPosition + event.pos()
         obj.move(pos)
         offsetX = pos.x() - self.initialPosition.x()
         offsetY = pos.y() - self.initialPosition.y()
@@ -127,10 +100,10 @@ class TextBox(QObject):
             self.bottomLeftPos = QPoint(self.bottomLeftPos.x()+offsetX, self.bottomLeftPos.y())
             self.topRight.move(self.topRightPos)
             self.bottomLeft.move(self.bottomLeftPos)
-            self.textEdit.move(QPoint(self.topLeftPos.x()+10, self.topLeftPos.y()+10))
+            self.boxField.moveCenter(QPoint(self.topLeftPos.x()+10, self.topLeftPos.y()+10))
             self.sizeX = self.sizeX - offsetX
             self.sizeY = self.sizeY - offsetY
-            self.textEdit.resize(self.sizeX, self.sizeY)
+            self.boxField.setSize(QSize(self.sizeX,self.sizeY))
 
         elif(obj is self.topRight):
             self.topRightPos = pos
@@ -138,10 +111,10 @@ class TextBox(QObject):
             self.topLeftPos = QPoint(self.topLeftPos.x(), self.topLeftPos.y()+offsetY)
             self.bottomRight.move(self.bottomRightPos)
             self.topLeft.move(self.topLeftPos)
-            self.textEdit.move(QPoint(self.topLeftPos.x()+10, self.topLeftPos.y()+10))
+            self.boxField.moveCenter(QPoint(self.topLeftPos.x()+10, self.topLeftPos.y()+10))
             self.sizeX = self.sizeX + offsetX
             self.sizeY = self.sizeY - offsetY
-            self.textEdit.resize(self.sizeX, self.sizeY)
+            self.boxField.setSize(QSize(self.sizeX,self.sizeY))
 
         elif(obj is self.bottomLeft):
             self.bottomLeftPos = pos
@@ -149,10 +122,10 @@ class TextBox(QObject):
             self.topLeftPos = QPoint(self.topLeftPos.x()+offsetX, self.topLeftPos.y())
             self.bottomRight.move(self.bottomRightPos)
             self.topLeft.move(self.topLeftPos)
-            self.textEdit.move(QPoint(self.topLeftPos.x()+10, self.topLeftPos.y()+10))
+            self.boxField.moveCenter(QPoint(self.topLeftPos.x()+10, self.topLeftPos.y()+10))
             self.sizeX = self.sizeX - offsetX
             self.sizeY = self.sizeY + offsetY
-            self.textEdit.resize(self.sizeX, self.sizeY)
+            self.boxField.setSize(QSize(self.sizeX,self.sizeY))
 
         elif(obj is self.bottomRight):
             self.bottomRightPos = pos
@@ -162,13 +135,14 @@ class TextBox(QObject):
             self.bottomLeft.move(self.bottomLeftPos)
             self.sizeX = self.sizeX + offsetX
             self.sizeY = self.sizeY + offsetY
-            self.textEdit.resize(self.sizeX, self.sizeY)
+            self.boxField.setSize(QSize(self.sizeX,self.sizeY))
+
 
         else:
             print("actionDragFin Error")
         obj.show()
         self.cancel.move(QPoint(self.topRightPos.x(), self.topRightPos.y()))
-        print(self.textEdit.toPlainText())
+
 
     def saveInitialPosition(self, event, obj):
         #Correct position is Box position + event pos
@@ -190,6 +164,6 @@ class TextBox(QObject):
         self.topRight.deleteLater()
         self.bottomLeft.deleteLater()
         self.bottomRight.deleteLater()
-        self.textEdit.deleteLater()
+        del self.boxField
         self.cancel.deleteLater()
         self.parent.boxFields[self.index] = None

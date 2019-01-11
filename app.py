@@ -10,9 +10,18 @@ from tools import *
 
 
 class App(QMainWindow):
+
+
+
     #Creates main window
     def __init__(self):
         super().__init__()
+        #https://stackoverflow.com/questions/14506787/reading-pyqt-stylesheet-from-external-qss-file
+        style="style.stylesheet"
+        with open(style,"r") as fh:
+            self.setStyleSheet(fh.read())
+
+
         self.layout = QVBoxLayout()
         #Geometry info
         self.title = 'PyQt5 simple window - pythonspot.com'
@@ -183,6 +192,8 @@ class App(QMainWindow):
 
 
         self.fontSize = QTextEdit(self)
+        self.fontSize.setFixedSize(30,20)
+        self.fontSize.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff);
         self.toolbar.addWidget(self.fontSize)
 
         self.fontConfirm = QPushButton("Confirm", None)

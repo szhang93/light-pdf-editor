@@ -1,6 +1,7 @@
 from globals import *
 from app import *
 from textBox import *
+from rect import *
 
 class TabMan(QWidget):
     def __init__(self, parent):
@@ -14,10 +15,19 @@ class TabMan(QWidget):
         self.fileNames = parent.fileNames
         self.tabList = []
         self.tabManager = QTabWidget()
+        self.tabManager.setTabsClosable(True)
+        self.tabManager.tabCloseRequested.connect(self.closeTab)
         self.tabManager.resize(300,200)
         self.layout.addWidget(self.tabManager)
 
         self.show()
+
+    def closeTab(self,idx):
+        del self.imgLists[idx]
+        del self.fileNames[idx]
+        del self.tabList[idx]
+        self.tabManager.removeTab(idx)
+
 
     def addTab(self, images):
         idx = len(self.tabList)
@@ -34,6 +44,8 @@ class TabMan(QWidget):
 
 class PdfDisplay(QWidget):
 
+
+
     def __init__(self, parent):
         #super(QWidget, self).__init__(parent)
         super().__init__()
@@ -41,10 +53,10 @@ class PdfDisplay(QWidget):
         self.images = []
         self.pixmaps = []
         self.labels = []
-        self.textBoxes = []
+        self.boxFields = []
         self.pageForms = [] #layouts
         self.pages = []
-        self.textBoxNum = 0
+        self.boxFieldNum = 0
 
 
         self.font = "Arial";
@@ -56,7 +68,7 @@ class PdfDisplay(QWidget):
     def textBoxConfirmed(self):
 
 
-        for textBox in self.textBoxes:
+        for textBox in self.boxFields:
             if textBox == None:
                 continue
             x = textBox.topLeftPos.x()
@@ -80,7 +92,7 @@ class PdfDisplay(QWidget):
             painter.end()
 
     def textBoxCanceled(self):
-        for textBox in self.textBoxes:
+        for textBox in self.boxFields:
             if textBox == None:
                 continue
             textBox.__del__()
@@ -100,14 +112,25 @@ class PdfDisplay(QWidget):
 
         # Create textbox
         #print(textBoxHash+"\n\n")
-        self.textBoxes.append(TextBox(self, pos, i, self.textBoxNum, pixmap, label))
-        self.textBoxNum+=1
+        self.boxFields.append(TextBox(self, pos, i, self.boxFieldNum, pixmap, label))
+        self.boxFieldNum+=1
 
+    def mouseMoveEventL(self, event, i, label, pixmap):
+        selected = self.boxFields[self.boxFieldNum-1];
 
+        selected.actionDrag(event, selected.bottomRight)
+
+    def mouseReleaseEventL(self, event, i, label, pixmap):
+        selected = self.boxFields[self.boxFieldNum-1];
+        selected.actionDragFin(event, selected.bottomRight)
+        selected.fresh = False;
 
 
     def attachMousePressEvent(self, i):
         self.labels[i].mousePressEvent = lambda event: self.mousePressEventL(event, i, self.labels[i], self.pixmaps[i])
+        self.labels[i].mouseMoveEvent = lambda event: self.mouseMoveEventL(event, i, self.labels[i], self.pixmaps[i])
+        self.labels[i].mouseReleaseEvent = lambda event: self.mouseReleaseEventL(event, i, self.labels[i], self.pixmaps[i])
+
 
     #https://stackoverflow.com/questions/17002260/how-to-make-a-pyqt-tabbed-interface-with-scroll-bars
     def addPdfTab(self, images):
