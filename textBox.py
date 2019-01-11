@@ -38,8 +38,22 @@ class TextBox(QObject):
         self.addListeners(self.bottomLeft)
         self.addListeners(self.bottomRight)
 
+
+
         self.initialPosition = pos
         self.movingPosition = pos
+
+        self.iTL = self.topLeftPos
+        self.iTR = self.topRightPos
+        self.iBL = self.bottomLeftPos
+        self.iBR = self.bottomRightPos
+
+        self.mTL = self.topLeftPos
+        self.mTR = self.topRightPos
+        self.mBL = self.bottomLeftPos
+        self.mBR = self.bottomRightPos
+
+
 
         self.textEdit = QTextEdit(parent.pages[i])
         self.textEdit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff);
@@ -52,7 +66,11 @@ class TextBox(QObject):
         self.fontSize = parent.fontSize
         self.textEdit.setCurrentFont(QFont(self.font,self.fontSize))
 
+        self.textEdit.mousePressEvent = lambda event: self.saveInitialOffsetBox(event)
+        self.textEdit.mouseReleaseEvent = lambda event: self.actionDragFinBox(event)
+        self.textEdit.mouseMoveEvent = lambda event: self.actionDragBox(event);
 
+    
 
         #self.pageForms[i].addWidget(self.textEdit);
         self.textEdit.move(pos)
@@ -65,6 +83,7 @@ class TextBox(QObject):
         self.cancel = QPushButton(QIcon('icons/x.png'),"",parent.pages[i])
 
         self.cancel.move(QPoint(self.topRightPos.x(), self.topRightPos.y())) #64 is pixel height
+        self.cancel.resize(20,20)
         self.cancel.show()
         #self.cancel.keyPressEvent = self.__del__
         self.cancel.mousePressEvent = lambda event: self.__del__()
@@ -90,16 +109,43 @@ class TextBox(QObject):
         obj.mouseReleaseEvent = lambda event: self.actionDragFin(event, obj)
         obj.mouseMoveEvent = lambda event: self.actionDrag(event, obj);
 
-    def actionMove(self, event, obj):
-        return 0
+
+    def saveInitialOffsetBox(self, event):
+        self.initialPosition = self.topLeftPos
+        self.movingPosition = self.initialPosition
+
+        self.iTL = self.topLeftPos - event.pos()
+        self.iTR = self.topRightPos - event.pos()
+        self.iBL = self.bottomLeftPos - event.pos()
+        self.iBR = self.bottomRightPos - event.pos()
+
+
+    def actionDragBox(self, event):
+        print(self.movingPosition)
+        print(event.pos())
+
+        self.topLeftPos = self.iTL + event.pos()
+        self.topRightPos = self.iTR + event.pos()
+        self.bottomLeftPos = self.iBL + event.pos()
+        self.bottomRightPos = self.iBR + event.pos()
+
+        self.topLeft.move(self.iTL + event.pos())
+        self.topRight.move(self.iTR + event.pos())
+        self.bottomLeft.move(self.iBL + event.pos())
+        self.bottomRight.move(self.iBR + event.pos())
+
+    def actionDragFinBox(self, event):
+        finPos = self.iTL + event.pos()
+        finPos = QPoint(finPos.x()+10, finPos.y()+10)
+        self.textEdit.move(finPos)
+        self.cancel.move(QPoint(self.topRightPos.x(), self.topRightPos.y()))
 
 
         #if clicked inside box coordinates
 
     def actionDrag(self, event, obj):
         #pos = QCursor.pos()
-        print(self.movingPosition)
-        print(event.pos())
+
         if(not self.fresh):
             #called from textBox instead of pdfDisplay
             self.movingPosition = self.movingPosition + event.pos()

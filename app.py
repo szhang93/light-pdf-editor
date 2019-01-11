@@ -186,13 +186,18 @@ class App(QMainWindow):
             self.comboFonts.addItem(myFont)
         self.toolbar.addWidget(self.comboFonts)
 
+        #https://stackoverflow.com/questions/13779752/how-to-set-the-default-item-of-a-qcombobox
+        self.comboFonts.setCurrentIndex(allFonts.index('Arial'))
+
 
         #fonts.activated[str].connect(self.changeFont)
 
 
 
         self.fontSize = QTextEdit(self)
-        self.fontSize.setFixedSize(30,20)
+        self.fontSize.setText("12")
+
+        self.fontSize.setFixedSize(50,20)
         self.fontSize.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff);
         self.toolbar.addWidget(self.fontSize)
 
