@@ -59,9 +59,9 @@ class PdfDisplay(QWidget):
         self.boxFieldNum = 0
 
 
-        self.font = "Arial";
+        self.font = parent.globalFont
         self.italic = False;
-        self.fontSize = 12;
+        self.fontSize = parent.globalFontSize
 
 
 

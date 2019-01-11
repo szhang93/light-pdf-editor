@@ -108,18 +108,31 @@ class App(QMainWindow):
         tab = self.tabMan.tabList[self.tabMan.getIdx()];
         tab.textBoxCanceled();
 
-    def changeFont(self, event):
-        #https://stackoverflow.com/questions/6061893/how-do-you-get-the-current-text-contents-of-a-qcombobox
-        font = str(self.comboFonts.currentText())
-        fontSizeStr = self.fontSize.toPlainText()
-        fontSize = 12
-        if(int(fontSizeStr)):
-            fontSize = int(fontSizeStr)
+    def changeFont(self, event, keyPressed):
+        if keyPressed:
+            if event.key() != Qt.Key_Return:
+                print("Not enter")
+                #https://stackoverflow.com/questions/18575635/pyqt-pyside-keypressevent-default-behaviour
+                #super(QTextEdit, self.fontSize).keyPressEvent(event)
+                if(event.key()==Qt.Key_Backspace):
+                    print("backspace")
+                    self.fontSize.setText(self.fontSize.toPlainText()[:-1])
+                elif (event.key()>=48) and (event.key()<=57):
+                    self.fontSize.setText(self.fontSize.toPlainText()+chr(event.key()))
+                else:
+                    print("not allowed")
+                return
 
-        for myPdfDisplay in self.tabMan.tabList:
-            myPdfDisplay.font = font;
-            myPdfDisplay.fontSize = fontSize;
-        print("changed to font:", font, "size:", fontSize)
+        #https://stackoverflow.com/questions/6061893/how-do-you-get-the-current-text-contents-of-a-qcombobox
+        self.globalFont = str(self.comboFonts.currentText())
+        fontSizeStr = self.fontSize.toPlainText()
+        self.globalFontSize = 12
+        if(int(fontSizeStr)):
+            self.globalFontSize = int(fontSizeStr)
+
+
+        print("changed to font:", self.globalFont, "size:", self.globalFontSize)
+
 
     #USER INTERFACE
     def initUI(self):
@@ -203,7 +216,8 @@ class App(QMainWindow):
 
         self.fontConfirm = QPushButton("Confirm", None)
         self.toolbar.addWidget(self.fontConfirm)
-        self.fontConfirm.mousePressEvent=self.changeFont
+        self.fontSize.keyPressEvent=lambda event: self.changeFont(event, True)
+        self.fontConfirm.mousePressEvent=lambda event: self.changeFont(event, False)
 
 
 
