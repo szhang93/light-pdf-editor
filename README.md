@@ -2,9 +2,9 @@
 Lightweight pdf editor intended for editing small pdf files.
 2018 Project.
 
-![alt text](https://github.com/szhang93/light-pdf-editor/tree/master/screenshots/1.png)
-![alt text](https://github.com/szhang93/light-pdf-editor/tree/master/screenshots/2.png)
-![alt text](https://github.com/szhang93/light-pdf-editor/tree/master/screenshots/3.png)
+![alt text](https://github.com/szhang93/light-pdf-editor/tree/master/screenshots/1.png?raw=true)
+![alt text](https://github.com/szhang93/light-pdf-editor/tree/master/screenshots/2.png?raw=true)
+![alt text](https://github.com/szhang93/light-pdf-editor/tree/master/screenshots/3.png?raw=true)
 
 Current Features:
 ---------------------------
