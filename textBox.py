@@ -10,7 +10,7 @@ class TextBox(QObject):
         super().__init__()
 
         self.fresh = True;
-
+        self.clicked = False
         self.parent = parent
         #coordinate positions
         #https://stackoverflow.com/questions/48716193/how-to-change-qlineedit-spacing-between-text-and-its-edge
@@ -70,7 +70,7 @@ class TextBox(QObject):
         self.textEdit.mouseReleaseEvent = lambda event: self.actionDragFinBox(event)
         self.textEdit.mouseMoveEvent = lambda event: self.actionDragBox(event);
 
-    
+
 
         #self.pageForms[i].addWidget(self.textEdit);
         self.textEdit.move(pos)
@@ -111,6 +111,7 @@ class TextBox(QObject):
 
 
     def saveInitialOffsetBox(self, event):
+        self.clicked = True
         self.initialPosition = self.topLeftPos
         self.movingPosition = self.initialPosition
 
@@ -121,20 +122,23 @@ class TextBox(QObject):
 
 
     def actionDragBox(self, event):
-        print(self.movingPosition)
-        print(event.pos())
+        if self.clicked == True:
+            print(self.movingPosition)
+            print(event.pos())
 
-        self.topLeftPos = self.iTL + event.pos()
-        self.topRightPos = self.iTR + event.pos()
-        self.bottomLeftPos = self.iBL + event.pos()
-        self.bottomRightPos = self.iBR + event.pos()
+            self.topLeftPos = self.iTL + event.pos()
+            self.topRightPos = self.iTR + event.pos()
+            self.bottomLeftPos = self.iBL + event.pos()
+            self.bottomRightPos = self.iBR + event.pos()
 
-        self.topLeft.move(self.iTL + event.pos())
-        self.topRight.move(self.iTR + event.pos())
-        self.bottomLeft.move(self.iBL + event.pos())
-        self.bottomRight.move(self.iBR + event.pos())
+            self.topLeft.move(self.iTL + event.pos())
+            self.topRight.move(self.iTR + event.pos())
+            self.bottomLeft.move(self.iBL + event.pos())
+            self.bottomRight.move(self.iBR + event.pos())
+
 
     def actionDragFinBox(self, event):
+        self.clicked = False
         finPos = self.iTL + event.pos()
         finPos = QPoint(finPos.x()+10, finPos.y()+10)
         self.textEdit.move(finPos)
@@ -158,6 +162,7 @@ class TextBox(QObject):
         #if dragging corners
 
     def actionDragFin(self, event, obj):
+        self.clicked = False
         #pos = QCursor.pos()
         if(not self.fresh):
             pos = self.movingPosition + event.pos()

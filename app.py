@@ -1,9 +1,8 @@
 #!/usr/bin/python3
 
 from globals import *
-from basicFunctions import *
 from pdfDisplay import *
-from tools import *
+
 #Many references used from :
 #https://pythonspot.com/pyqt5/
 #http://zetcode.com/gui/pyqt5/widgets2/
@@ -27,14 +26,20 @@ class App(QMainWindow):
         self.title = 'PyQt5 simple window - pythonspot.com'
         self.left = 10
         self.top = 10
-        self.width = 640
-        self.height = 480
+        self.width = 1000
+        self.height = 1000
+
+        self.globalFont = ("Arial")
+
+        self.globalFontSize = 12
+
         #Hard coded for now.
         self.fullPath = "/home/shini/Documents/projects/pdfEditor/pythonEnv/src"
 
         #imgList for pdf files is stored in the main App
         self.imgLists = [] #list of image Lists
         self.fileNames = []
+        self.imgWidths = []
 
         self.initUI()
         self.showMaximized() #fullscreen
@@ -58,7 +63,9 @@ class App(QMainWindow):
         pg = 0 #page counter
         tempImgList = [] #list
         #imgList=[] #stores path of list of images
+
         for image in images:
+
             image.save(tempPath+baseName+str(pg)+".jpg","JPEG") #saves images to a path
             tempImgList.append(tempPath+baseName+str(pg)+".jpg")
             pg+=1
@@ -154,7 +161,7 @@ class App(QMainWindow):
         #editFile.triggered.connect(self.toggleEditOnOff)
         #self.pdfDisplay = PdfDisplay(self)
         self.tabMan = TabMan(self)
-        self.tools = Tools(self)
+
 
         self.toolbar = self.addToolBar("toolbar")
         #http://zetcode.com/gui/pyqt5/menustoolbars/
@@ -200,7 +207,7 @@ class App(QMainWindow):
         self.toolbar.addWidget(self.comboFonts)
 
         #https://stackoverflow.com/questions/13779752/how-to-set-the-default-item-of-a-qcombobox
-        self.comboFonts.setCurrentIndex(allFonts.index('Arial'))
+        # self.comboFonts.setCurrentIndex(allFonts.index('Arial'))
 
 
         #fonts.activated[str].connect(self.changeFont)
@@ -221,7 +228,7 @@ class App(QMainWindow):
 
 
 
-        self.layout.addWidget(self.tools)
+
         self.layout.addWidget(self.tabMan)
         self.setCentralWidget(self.tabMan)
 

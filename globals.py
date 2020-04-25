@@ -17,3 +17,4 @@ from PyQt5.QtCore import *
 #Global variables
 editMode = True;
 selectedTab = 0;
+changes = False;

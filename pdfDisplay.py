@@ -2,6 +2,7 @@ from globals import *
 from app import *
 from textBox import *
 from rect import *
+from leftpanel import *
 
 class TabMan(QWidget):
     def __init__(self, parent):
@@ -9,7 +10,7 @@ class TabMan(QWidget):
         #super(QWidget, self).__init__(parent)
         super().__init__()
         self.parent = parent
-        self.layout = QVBoxLayout(self)
+        self.layout = QHBoxLayout(self)
 
         self.imgLists = parent.imgLists
         self.fileNames = parent.fileNames
@@ -17,8 +18,31 @@ class TabMan(QWidget):
         self.tabManager = QTabWidget()
         self.tabManager.setTabsClosable(True)
         self.tabManager.tabCloseRequested.connect(self.closeTab)
-        self.tabManager.resize(300,200)
+        #self.tabManager.resize(parent.width,parent.height)
+
+        self.height = parent.height
+        """
+        self.leftPanel = LeftPanel(self)
+        self.leftPanel.resize(900,parent.height)
+        self.leftPanel.show()
+
+        self.layout.addWidget(self.leftPanel)
+
+        self.pdfPages = QWidget(self)
+        self.scrollArea2 = QScrollArea(self.pdfPages)
+        self.scrollArea2.resize(parent.width,parent.height)
+        self.pdfPages.resize(parent.width, parent.height)
+        self.pdfPages.layout = QVBoxLayout(self.pdfPages)
+
+        self.pdfPages.layout.addWidget(self.tabManager)
+
+        self.layout.addWidget(self.pdfPages)
+        """
+
         self.layout.addWidget(self.tabManager)
+
+        self.scenes = []
+        self.views = []
 
         self.show()
 
@@ -26,13 +50,33 @@ class TabMan(QWidget):
         del self.imgLists[idx]
         del self.fileNames[idx]
         del self.tabList[idx]
+
         self.tabManager.removeTab(idx)
 
 
     def addTab(self, images):
-        idx = len(self.tabList)
+        idx = len(self.tabList) #should have same number of scenes
+        #self.scenes.append(QGraphicsScene(self.parent))
+
+
         self.tabList.append(PdfDisplay(self.parent))
         self.tabList[idx].addPdfTab(images)
+        #self.scenes[idx].addWidget(self.tabList[idx])
+
+        #self.views.append(QGraphicsView(self.scenes[idx], self.parent))
+
+        #imgWidth = self.parent.imgWidths[idx]
+        #scale to 900
+        #ratio = 2000.0/imgWidth
+        #print(ratio)
+
+        #self.views[idx].scale(ratio, ratio)
+
+        #self.scenes[idx].setSceneRect(QRectF(0,0,1000,1000))
+        #print(self.scenes[idx].sceneRect())
+        #self.scenes[idx].setSceneRect(QRectF(0,0,1000,1000))
+
+
         #self.layout.addWidget(self.tabList[idx])
         self.tabManager.addTab(self.tabList[idx], self.fileNames[idx])
 
@@ -154,7 +198,7 @@ class PdfDisplay(QWidget):
             label.setGeometry(0,0,10,10)
             label.setPixmap(pixmap)
             label.hasScaledContents();
-            label.resize(500,500)
+            #label.resize(500,500)
 
             self.pageForms[i].addWidget(label)
 
