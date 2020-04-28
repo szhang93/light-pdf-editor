@@ -15,9 +15,8 @@ Current Features:
 Constraints / Bugs:
 ---------------------------
 * Font sizing broke
-* Need major code refactoring
+* Need code refactoring
 * Not scalable, pdf files with 10+ pages take too long to load.
-* UI need some quality of life updates
 
 Tools used:
 ---------------------------
